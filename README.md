@@ -33,3 +33,7 @@ because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonl
 1. Do not add rustdoc to implementors of a trait.
     - Why: trait implementors use the trait definintions rustdoc as its own. If you are redefining the rustdoc then you are describing functionality that should not be a behavior of that trait or leaking implementation details that should not impact the caller.
 1. Avoid "Section" comments in code. If it's a section, it should probably be a private function.
+1. Crates in rust (`lib` and `binary`) should use kebab casing (`this-is-a-crate`) for their names.
+    - This is the only part of the [rust naming spec](https://rust-lang.github.io/api-guidelines/naming.html) that is unclear.
+    - I elect to follow some of the well defined crates in the rust ecosystem like `tokio-core`.
+    - This is true for both `lib` and `binary` crates because you can have a lib nested in a binary. Therefore to avoid a further lack of clarity these two should be the same.
