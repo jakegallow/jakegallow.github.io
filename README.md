@@ -29,3 +29,7 @@ fn pour_coffee() -> (JoinHandle<()>, bool) {
 }
 ```
 because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonly understood meaning as a tuple. If the two really are related define an object that makes the grouping obvious and return that instead.
+1. All public types and functions should have rustdoc.
+1. Do not add rustdoc to implementors of a trait.
+    - Why: trait implementors use the trait definintions rustdoc as its own. If you are redefining the rustdoc then you are describing functionality that should not be a behavior of that trait or leaking implementation details that should not impact the caller.
+1. Avoid "Section" comments in code. If it's a section, it should probably be a private function.
