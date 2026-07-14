@@ -42,31 +42,32 @@ because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonl
     - If you really need something that is currently "Debug only"  in a log implement either the `std::fmt::Display` trait, or a custom to string [extension trait](http://xion.io/post/code/rust-extension-traits.html).
 1. When using tracing, avoid re-logging errors at every level. There are a few rules and caveats to this:
     - Errors should only be logged at the lowest level. This prevents log spew. From the below example you can see only "function b" is logging its error.
-    ```rs
-    fn a() -> Result<(), MyError> {
-        b()
-    }
+```rs
+fn a() -> Result<(), MyError> {
+    b()
+}
 
-    fn b() -> Result<(), MyError> {
-        //something fails
-        error!("I called an API that failed");
+fn b() -> Result<(), MyError> {
+    //something fails
+    error!("I called an API that failed");
+}
+```
+- as an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
+```rs
+mod b {
+    fn lib_crate_fn() -> Result<(), std::io::Error> {
+        // Am I logging? Who knows
+        return // some kind of io::Error;
     }
-    ```
-    - as an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
-    ```rs
-    mod b {
-        fn lib_crate_fn() -> Result<(), std::io::Error> {
-            // Am I logging? Who knows
-            return // some kind of io::Error;
+}
+mod a {
+    fn my_fn() -> Result<(), MyError> {
+        if let Err(e) = lib_crate_fn() {
+            error!("yep, i hit an error");
+            return Err(MyError::from(e));
         }
+        // ...
     }
-    mod a {
-        fn my_fn() -> Result<(), MyError> {
-            if let Err(e) = lib_crate_fn() {
-                error!("yep, i hit an error");
-                return Err(MyError::from(e));
-            }
-            // ...
-        }
-    }
-    ```
+}
+```
+1. I just want more to see how things will format.
