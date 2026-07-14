@@ -7,27 +7,32 @@ An unsorted list of things I find to be good style in code and design. This page
 1. Implementors of the display trait should not use debug types in their implementation.
     - Display should always be human readable. Debug types are not always human readable and are often much larger. Therefore we should prefer human readable representations when we are presenting something to humans rather than machines.
 1. Do not use array like types to nest Error-like objects in error variants. This bloats the size of the error object, can make them unreadable, and often indicates poor error handling. Example:
-```rs
-#[derive(thiserror::Error, Debug)]
-pub enum MyError {
-    #[error("I'm going to output every single thing in {field} ")]
-    VariantA {
-        field: Vec<tonic::Status>
-    }
-}
-```
+
+   ```rs
+   #[derive(thiserror::Error, Debug)]
+   pub enum MyError {
+       #[error("I'm going to output every single thing in {field} ")]
+       VariantA {
+           field: Vec<tonic::Status>
+       }
+   }
+   ```
 1. Do not use tuples as return types unless the returned object holds meaning as a tuple itself. So that's to say
-```rs
-fn get_point() -> (u8, u8) {
-    // ..
-}
-```
+
+   ```rs
+   fn get_point() -> (u8, u8) {
+       // ..
+   }
+   ```
+
 is valid because `(u8, u8)` can be well understood to be a point. However the below is is not valid.
-```rs
-fn pour_coffee() -> (JoinHandle<()>, bool) {
-    // ..
-}
-```
+
+   ```rs
+   fn pour_coffee() -> (JoinHandle<()>, bool) {
+       // ..
+   }
+   ```
+
 because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonly understood meaning as a tuple. If the two really are related define an object that makes the grouping obvious and return that instead.
 1. All public types and functions should have rustdoc.
 1. Do not add rustdoc to implementors of a trait.
@@ -41,31 +46,32 @@ because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonl
     - Why: Debug representation are not always human readable and can lead to a lot of log bloat.
     - If you really need something that is currently "Debug only"  in a log implement either the `std::fmt::Display` trait, or a custom to string [extension trait](http://xion.io/post/code/rust-extension-traits.html).
 1. When using tracing, avoid re-logging errors at every level. Errors should only be logged at the lowest level. This prevents log spew. From the below example you can see only "function b" is logging its error.
-```rs
-fn a() -> Result<(), MyError> {
-    b()
-}
 
-fn b() -> Result<(), MyError> {
-    //something fails
-    error!("I called an API that failed");
-}
+   ```rs
+   fn a() -> Result<(), MyError> {
+       b()
+   }
 
-// as an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
-mod b {
-    fn lib_crate_fn() -> Result<(), std::io::Error> {
-        // Am I logging? Who knows
-        return // some kind of io::Error;
-    }
-}
-mod a {
-    fn my_fn() -> Result<(), MyError> {
-        if let Err(e) = lib_crate_fn() {
-            error!("yep, i hit an error");
-            return Err(MyError::from(e));
-        }
-        // ...
-    }
-}
-```
+   fn b() -> Result<(), MyError> {
+       //something fails
+       error!("I called an API that failed");
+   }
+
+   // as an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
+   mod b {
+       fn lib_crate_fn() -> Result<(), std::io::Error> {
+           // Am I logging? Who knows
+           return // some kind of io::Error;
+       }
+   }
+   mod a {
+       fn my_fn() -> Result<(), MyError> {
+           if let Err(e) = lib_crate_fn() {
+               error!("yep, i hit an error");
+               return Err(MyError::from(e));
+           }
+           // ...
+       }
+   }
+   ```
 1. I just want more to see how things will format.
