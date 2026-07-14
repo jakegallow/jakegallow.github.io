@@ -40,8 +40,7 @@ because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonl
 1. Avoid `debug` representation in tracing logs at the `INFO` and `ERROR` levels. These representations should be reserved for `DEBUG` level traces.
     - Why: Debug representation are not always human readable and can lead to a lot of log bloat.
     - If you really need something that is currently "Debug only"  in a log implement either the `std::fmt::Display` trait, or a custom to string [extension trait](http://xion.io/post/code/rust-extension-traits.html).
-1. When using tracing, avoid re-logging errors at every level. There are a few rules and caveats to this:
-    - Errors should only be logged at the lowest level. This prevents log spew. From the below example you can see only "function b" is logging its error.
+1. When using tracing, avoid re-logging errors at every level. Errors should only be logged at the lowest level. This prevents log spew. From the below example you can see only "function b" is logging its error.
 ```rs
 fn a() -> Result<(), MyError> {
     b()
@@ -51,9 +50,8 @@ fn b() -> Result<(), MyError> {
     //something fails
     error!("I called an API that failed");
 }
-```
-- as an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
-```rs
+
+// as an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
 mod b {
     fn lib_crate_fn() -> Result<(), std::io::Error> {
         // Am I logging? Who knows
