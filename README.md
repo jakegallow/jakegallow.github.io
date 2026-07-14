@@ -6,7 +6,7 @@ An unsorted list of things I find to be good style in code and design. This page
     - Why: error messages should be human readable. If they are going to some kind of structured return or telemetry that gets serialized that should be a different function or representation.
 1. Implementors of the display trait should not use debug types in their implementation.
     - Display should always be human readable. Debug types are not always human readable and are often much larger. Therefore we should prefer human readable representations when we are presenting something to humans rather than machines.
-1. Do not include array like types as part of an error variant. Example:
+1. Do not use array like types to nest Error-like objects in error variants. This bloats the size of the error object, can make them unreadable, and often indicates poor error handling. Example:
 ```rs
 #[derive(thiserror::Error, Debug)]
 pub enum MyError {
