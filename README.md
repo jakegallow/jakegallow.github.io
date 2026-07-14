@@ -20,20 +20,19 @@ An unsorted list of things I find to be good style in code and design. This page
 1. Do not use tuples as return types unless the returned object holds meaning as a tuple itself. So that's to say
 
    ```rs
-   fn get_point() -> (u8, u8) {
+    // IS valid because `(u8, u8)` can be well understood to be a point. However the below is is not valid.
+   fn valid() -> (u8, u8) {
        // ..
    }
    ```
-
-is valid because `(u8, u8)` can be well understood to be a point. However the below is is not valid.
 
    ```rs
-   fn pour_coffee() -> (JoinHandle<()>, bool) {
+   // NOT VALID because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonly understood meaning as a tuple. If the two really are related define an object that makes the grouping obvious and return that instead.
+   fn invalid() -> (JoinHandle<()>, bool) {
        // ..
    }
    ```
 
-because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonly understood meaning as a tuple. If the two really are related define an object that makes the grouping obvious and return that instead.
 1. All public types and functions should have rustdoc.
 1. Do not add rustdoc to implementors of a trait.
     - Why: trait implementors use the trait definintions rustdoc as its own. If you are redefining the rustdoc then you are describing functionality that should not be a behavior of that trait or leaking implementation details that should not impact the caller.
