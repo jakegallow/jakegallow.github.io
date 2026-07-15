@@ -17,17 +17,18 @@ An unsorted list of things I find to be good style in code and design. This page
        }
    }
    ```
-1. Do not use tuples as return types unless the returned object holds meaning as a tuple itself. So that's to say
+1. Do not use tuples as return types unless the returned object holds meaning as a tuple itself. So that's to say the below IS valid because `(u8, u8)` can be well understood to be a point. It may still be worth while to define a type alias or struct, but I would not consider this wrong.
 
    ```rs
-    // IS valid because `(u8, u8)` can be well understood to be a point. However the below is is not valid.
-   fn valid() -> (u8, u8) {
+    //
+   fn get_point() -> (u8, u8) {
        // ..
    }
    ```
 
+   - However, the below is NOT VALID because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonly understood meaning as a tuple. If the two really are related define an object that makes the grouping obvious and return that instead.
+
    ```rs
-   // NOT VALID because a tuple of `JoinHandle` and `bool` are disjoint and don't have a commonly understood meaning as a tuple. If the two really are related define an object that makes the grouping obvious and return that instead.
    fn invalid() -> (JoinHandle<()>, bool) {
        // ..
    }
@@ -55,8 +56,11 @@ An unsorted list of things I find to be good style in code and design. This page
        //something fails
        error!("I called an API that failed");
    }
+   ```
 
-   // as an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
+   - As an extension to this, this only applies to functions you own. If you own `mod A`, but not `mod B` even if it is logging internally, you should not make the assumption that is. You should log something when it errors and if nessecary convert the error to your own owned type.
+
+   ```rs
    mod b {
        fn lib_crate_fn() -> Result<(), std::io::Error> {
            // Am I logging? Who knows
@@ -73,4 +77,3 @@ An unsorted list of things I find to be good style in code and design. This page
        }
    }
    ```
-1. I just want more to see how things will format.
